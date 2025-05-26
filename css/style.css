@@ -170,7 +170,7 @@
  }
 
  .terceroDiv {
-   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+   background: linear-gradient(135deg, #45d3a4 0%, #4d98cb 100%);
    width: 100%;
    height: auto;
    min-height: 600px;
@@ -188,7 +188,7 @@
  }
 
  .noroeste-table {
-   background: white;
+   background: linear-gradient(135deg, #45d3a4 0%, #4d98cb 100%);
    border-radius: 10px;
    padding: 20px;
    margin-bottom: 20px;

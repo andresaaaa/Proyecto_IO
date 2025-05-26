@@ -346,7 +346,7 @@ function Creategrafico() {
     const origenes = [];
     const destinos = [];
 
-    // Crear nodos de origen (F)
+
     for (let i = 0; i < Nfilas; i++) {
         const x = margenLateral;
         const y = margenSuperior + i * espacioOrigenY;
@@ -458,7 +458,7 @@ function Creategrafico() {
     for (let i = 0; i < Ncolumas; i++) {
         for (let j = 0; j < Nfilas; j++) {
 
-            // Etiqueta Xij
+ 
             const textX = document.createElementNS(svgNS, "text");
             textX.setAttribute("x", (ancho - margenLateral) - 40);
             textX.setAttribute("y", coordenada2);
@@ -748,8 +748,8 @@ function Esquinanoroeste(){
             // console.log(Ncolumas-1,aumentar)
             console.log(aumentar,aumentar2)
             // console.log(i,j)
-            Demanda = Number(matriz[Nfilas][aumentar]);   // <-- Conversión aquí
-            Oferta = Number(matriz[aumentar2][Ncolumas]); // <-- Y aquí
+            Demanda = Number(matriz[Nfilas][aumentar]);   
+            Oferta = Number(matriz[aumentar2][Ncolumas]); 
 
 
             
@@ -1137,7 +1137,7 @@ function RON() {
         if (variables.length > 0) {
         
             let oferta = datosTablaOriginal[i][Ncolumas];
-            texto += `${variables.join(" + ")} = ${oferta}\n`;
+            texto += `${variables.join(" + ")} <= ${oferta}\n`;
         }
     }
 
@@ -1167,7 +1167,7 @@ function RDN() {
         if (variables.length > 0) {
     
             let demanda = datosTablaOriginal[Nfilas][j];
-            texto += `${variables.join(" + ")} = ${demanda}\n`;
+            texto += `${variables.join(" + ")} <= ${demanda}\n`;
         }
     }
 
