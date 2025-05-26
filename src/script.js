@@ -8,11 +8,144 @@ const Rango2 = document.getElementById('rango2');
 const button1 = document.createElement("button");
 const button2 = document.createElement("button");
 
-
 let contendorTabla = document.getElementById('segundoDiv'); 
 let Ncolumas = parseInt(origenCant.value);
 let Nfilas = parseInt(DestinoCant.value);
 
+function mostrarError(mensaje) {
+
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'alert alert-danger alert-dismissible fade show';
+    errorDiv.style.position = 'fixed';
+    errorDiv.style.top = '20px';
+    errorDiv.style.right = '20px';
+    errorDiv.style.zIndex = '9999';
+    errorDiv.style.maxWidth = '400px';
+    
+    errorDiv.innerHTML = `
+        <strong>Error:</strong> ${mensaje}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(errorDiv);
+    
+  
+    setTimeout(() => {
+        if (errorDiv.parentElement) {
+            errorDiv.remove();
+        }
+    }, 5000);
+}
+
+
+function validarCampoTexto(valor, nombreCampo) {
+    if (!valor || valor.trim() === '') {
+        mostrarError(`El campo "${nombreCampo}" no puede estar vacío.`);
+        return false;
+    }
+    return true;
+}
+
+
+function validarNumero(valor, nombreCampo) {
+    const numero = parseFloat(valor);
+    if (isNaN(numero)) {
+        mostrarError(`El campo "${nombreCampo}" debe contener un número válido.`);
+        return false;
+    }
+    if (numero < 0) {
+        mostrarError(`El campo "${nombreCampo}" debe ser un número positivo.`);
+        return false;
+    }
+    return true;
+}
+
+
+function validarTablaCompleta() {
+ 
+    const tabla = document.getElementById("table");
+    if (!tabla) {
+        mostrarError("Debe generar la tabla primero.");
+        return false;
+    }
+
+
+    for (let i = 1; i <= Nfilas + 1; i++) {
+        for (let j = 1; j <= Ncolumas + 1; j++) {
+
+            if (i === Nfilas + 1 && j === Ncolumas + 1) {
+                continue;
+            }
+
+            const celda = document.getElementById(`X${i}${j}`);
+            if (celda) {
+                const input = celda.querySelector("input");
+                if (input && !input.disabled) {
+                    const valor = input.value.trim();
+                    
+                    if (valor === '') {
+                        mostrarError(`Debe llenar todos los campos de la tabla. Campo vacío en fila ${i}, columna ${j}.`);
+                        input.focus();
+                        return false;
+                    }
+                    
+                    if (!validarNumero(valor, `Fila ${i}, Columna ${j}`)) {
+                        input.focus();
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+    return true;
+}
+
+
+function validarRangos() {
+    if (Ncolumas === 0) {
+        mostrarError("Debe seleccionar al menos 1 origen.");
+        return false;
+    }
+    if (Nfilas === 0) {
+        mostrarError("Debe seleccionar al menos 1 destino.");
+        return false;
+    }
+    return true;
+}
+
+function validarEquilibrio() {
+    let totalOferta = 0;
+    let totalDemanda = 0;
+
+    // Sumar ofertas
+    for (let i = 1; i <= Nfilas; i++) {
+        const celda = document.getElementById(`X${i}${Ncolumas + 1}`);
+        if (celda) {
+            const input = celda.querySelector("input");
+            if (input) {
+                totalOferta += parseFloat(input.value) || 0;
+            }
+        }
+    }
+
+    // Sumar demandas
+    for (let j = 1; j <= Ncolumas; j++) {
+        const celda = document.getElementById(`X${Nfilas + 1}${j}`);
+        if (celda) {
+            const input = celda.querySelector("input");
+            if (input) {
+                totalDemanda += parseFloat(input.value) || 0;
+            }
+        }
+    }
+
+    if (Math.abs(totalOferta - totalDemanda) > 0.01) {
+        mostrarError(`El problema no está equilibrado. Total Oferta: ${totalOferta}, Total Demanda: ${totalDemanda}. Deben ser iguales.`);
+        return false;
+    }
+
+    return true;
+}
 
 origenCant.addEventListener("input", function(event){
     Ncolumas = parseInt(event.target.value);
@@ -25,7 +158,6 @@ DestinoCant.addEventListener("input", function(event){
 })
 
 function CreatesButtons(){ 
-
     //pues les puse id es obvio no? bueno para mi si 🤔
     button1.id ="boton1" 
     button2.id ="boton2"
@@ -42,14 +174,12 @@ function CreatesButtons(){
         button2existe.remove();
     }
 
-
     button1.classList.add("btn-custom");
     button2.classList.add("btn-custom");
 
     button1.innerText = "Resolver";
     button2.innerText = "Esquina noroeste";
 
-    
     document.getElementById("contendor1").appendChild(button1);
     document.getElementById("contendor1").appendChild(button2);
 }
@@ -58,12 +188,10 @@ function CreateTable(){
     var origenText = origen.value;
     var destinoText = destino.value;
 
-
     let tablaExistente = document.getElementById("table");
     if (tablaExistente){
         tablaExistente.remove();
     }
-
 
     const tabla = document.createElement("table");
     tabla.id = "table";
@@ -71,18 +199,12 @@ function CreateTable(){
 
     document.getElementById("contendor1").appendChild(tabla);
 
-
-
     const encabezados = [""];
 
     for (let i = 0; i < Ncolumas ; i++) {
-         
         encabezados.push(`${origenText}-${i+1}`);
-        
     }
     encabezados.push("Oferta")
-    
-
 
     const filaencabezados = tabla.insertRow();
     encabezados.forEach(texto => {
@@ -90,15 +212,11 @@ function CreateTable(){
         celda.textContent = texto;
         filaencabezados.appendChild(celda)
     })
-    
-    
- 
+
     const filas = [""];
 
     for (let i = 0; i < Nfilas; i++) {
-         
         filas.push(`${destinoText}-${i+1}`);
-        
     }
     filas.push("Demanda");
     
@@ -106,32 +224,53 @@ function CreateTable(){
         let fila = tabla.insertRow();
         let primeracelda = fila.insertCell();
         primeracelda.textContent = filas[i+1];
-        console.log(filas)
-
 
         for (let j = 1; j < encabezados.length; j++) {
             let celda1 = fila.insertCell();
             let input = document.createElement("input");
             input.style.width="80px";
             input.type ="text"; 
+            
+ 
+            input.addEventListener('input', function(e) {
+                const valor = e.target.value;
+                if (valor !== '' && isNaN(parseFloat(valor))) {
+                    e.target.style.borderColor = 'red';
+                    e.target.title = 'Debe ingresar un número válido';
+                } else {
+                    e.target.style.borderColor = '';
+                    e.target.title = '';
+                }
+            });
 
-            if ( i == Nfilas && j == encabezados.length-1) {
+            if (i == Nfilas && j == encabezados.length-1) {
                 input.disabled = true;
                 input.placeholder = "X"
                 input.value = 0;
-                celda1.appendChild(input);
             }
 
             celda1.appendChild(input);
             celda1.id = `X${i+1}${j}`;
-            // console.log(`X${i+1}${j}`);
-         };
+        };
     }
-
-    // document.getElementById(`X${Nfilas}${encabezados.length}`).querySelector("input").disabled = true;
 }
 
 document.getElementById('btnGenerarTabla').addEventListener("click",function(){
+    
+    if (!validarRangos()) {
+        return;
+    }
+    
+    if (!validarCampoTexto(origen.value, "¿Qué transporta?")) {
+        origen.focus();
+        return;
+    }
+    
+    if (!validarCampoTexto(destino.value, "¿A dónde se envía?")) {
+        destino.focus();
+        return;
+    }
+
     CreateTable();
     CreatesButtons();  
 })
@@ -777,7 +916,6 @@ function Graficonoroeste(){
     let posicionOferta=[];
     let posicionDemanda= [];
 
-    // Crear nodos de origen (F)
 
     for (let i = 0; i < Nfilas; i++) {
         posicionOferta[i]=[];
@@ -794,7 +932,6 @@ function Graficonoroeste(){
         origenes.push({ x, y });
     }
 
-    // Crear nodos de destino (D)
     for (let j = 0; j < Ncolumas; j++) {
         posicionDemanda[j] = [];
     }
@@ -1040,11 +1177,12 @@ function RDN() {
 
 button1.addEventListener("click",function(){
 
+    if (!validarTablaCompleta()) return;
+    if (!validarEquilibrio()) return;
+
     console.log("hola1");
-    Creategrafico(Ncolumas,Nfilas);
+    Creategrafico(Ncolumas, Nfilas);
     FuncionObjetivo();
-    // console.log(ObtenerValoresTabla());
-    // console.log(ObtenerPosiciones());
     RO();
     RD();
     
@@ -1052,6 +1190,9 @@ button1.addEventListener("click",function(){
 
 
 button2.addEventListener("click",function(){
+    if (!validarTablaCompleta()) return;
+    if (!validarEquilibrio()) return;
+
     console.log("hola2");
     Esquinanoroeste();
     console.log(subNumerosnoroeste)
